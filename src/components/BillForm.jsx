@@ -1,4 +1,3 @@
-
 // import { useRef, useState } from "react";
 // import html2canvas from "html2canvas";
 // import jsPDF from "jspdf";
@@ -139,19 +138,18 @@
 //     const pdfWidth = 210;
 //     const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
 //     pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
-//     const fileName = data.billNo && data.billNo.trim() !== ""
-//   ? data.billNo
-//   : "invoice";
-
-// pdf.save(`${fileName}.pdf`);
+    
+//     const fileName = data.billNo && data.billNo.trim() !== "" ? data.billNo : "invoice";
+//     pdf.save(`${fileName}.pdf`);
 //   };
 
 //   return (
-//     <div className="flex gap-5 p-5 bg-gray-100 min-h-screen font-sans">
+//     // RESPONSIVE WRAPPER: Flex-col on mobile, Flex-row on Desktop (lg)
+//     <div className="flex flex-col lg:flex-row gap-5 p-2 lg:p-5 bg-gray-100 min-h-screen font-sans">
 
-//       {/* ================= LEFT: INPUT FORM ================= */}
-//       <div className="w-[45%] bg-white p-6 rounded-lg shadow-xl h-[95vh] overflow-y-auto sticky top-5">
-//         <h3 className="text-2xl font-bold mb-6 text-gray-800 border-b pb-2">Invoice Editor</h3>
+//       {/* ================= LEFT: INPUT FORM (Responsive Width) ================= */}
+//       <div className="w-full lg:w-[45%] bg-white p-4 lg:p-6 rounded-lg shadow-xl h-auto lg:h-[95vh] lg:overflow-y-auto lg:sticky lg:top-5 order-1 lg:order-none">
+//         <h3 className="text-xl lg:text-2xl font-bold mb-6 text-gray-800 border-b pb-2">Invoice Editor</h3>
 
 //         <div className="space-y-6">
           
@@ -160,15 +158,15 @@
 //              <h4 className="font-bold text-yellow-800 mb-2 flex items-center gap-2">
 //                Currency {isFetchingRate && <span className="text-xs animate-pulse">(Updating...)</span>}
 //              </h4>
-//              <div className="flex gap-4">
-//                 <div className="w-1/2">
+//              <div className="flex flex-col sm:flex-row gap-4">
+//                 <div className="w-full sm:w-1/2">
 //                   <label className="text-xs font-bold text-gray-500">Select Currency</label>
 //                   <select value={currency} onChange={handleCurrencyChange} className="w-full border p-2 rounded bg-white font-bold">
 //                     {Object.keys(CURRENCIES).map(c => <option key={c} value={c}>{c} ({CURRENCIES[c].symbol})</option>)}
 //                   </select>
 //                 </div>
 //                 {currency !== "INR" && (
-//                    <div className="w-1/2">
+//                    <div className="w-full sm:w-1/2">
 //                       <label className="text-xs font-bold text-gray-500">Rate (1 {currency} = ? INR)</label>
 //                       <input type="number" value={exchangeRate} onChange={(e) => setExchangeRate(e.target.value)} className="w-full border p-2 rounded" />
 //                    </div>
@@ -189,7 +187,7 @@
 //             <h4 className="font-semibold text-blue-600 mb-2">Invoice Details</h4>
 //             <div className="space-y-2">
 //                <input name="partyName" value={data.partyName} onChange={handleChange} className="w-full border p-2 rounded text-sm" placeholder="Party Name" />
-//                <div className="grid grid-cols-2 gap-2">
+//                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
 //                  <input name="billNo" value={data.billNo} onChange={handleChange} className="border p-2 rounded text-sm" placeholder="Bill No" />
 //                  <input name="billDate" value={data.billDate} onChange={handleChange} className="border p-2 rounded text-sm" placeholder="Bill Date" />
 //                  <input name="sbNo" value={data.sbNo} onChange={handleChange} className="border p-2 rounded text-sm" placeholder="SB No" />
@@ -198,10 +196,10 @@
 //             </div>
 //           </div>
 
-//           {/* Logistics */}
+//           {/* Logistics - Responsive Grid */}
 //           <div>
 //             <h4 className="font-semibold text-blue-600 mb-2">Logistics Info</h4>
-//             <div className="grid grid-cols-3 gap-2">
+//             <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
 //                {['mawb', 'hawb', 'pol', 'pod', 'pkgs', 'grossWeight', 'volWeight'].map((field) => (
 //                  <input 
 //                    key={field}
@@ -218,7 +216,7 @@
 //           {/* Items */}
 //           <div>
 //             <div className="flex justify-between items-center mb-2">
-//               <h4 className="font-bold text-blue-800">Items (Values in {currency})</h4>
+//               <h4 className="font-bold text-blue-800">Items ({currency})</h4>
 //               <button onClick={addItem} className="bg-green-600 text-white px-3 py-1 rounded text-sm font-bold">+ Add Item</button>
 //             </div>
 //             <div className="space-y-3">
@@ -228,11 +226,12 @@
 //                 return (
 //                 <div key={index} className="border p-3 rounded bg-blue-50 relative">
 //                    {data.items.length > 1 && <button onClick={() => removeItem(index)} className="absolute top-2 right-2 text-red-500 text-xs font-bold">Remove</button>}
-//                    <div className="grid grid-cols-2 gap-2 mb-2">
+                   
+//                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-2">
 //                       <input value={item.description} onChange={(e) => handleItemChange(index, 'description', e.target.value)} className="border p-1 rounded text-sm" placeholder="Description" />
 //                       <input value={item.hsn} onChange={(e) => handleItemChange(index, 'hsn', e.target.value)} className="border p-1 rounded text-sm" placeholder="HSN" />
 //                    </div>
-//                    <div className="grid grid-cols-4 gap-2">
+//                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
 //                       <input type="number" value={item.taxable} onChange={(e) => handleItemChange(index, 'taxable', e.target.value)} className="border p-1 rounded text-sm font-bold text-blue-900" placeholder={`Taxable`} />
 //                       <input type="number" value={item.sgstRate} onChange={(e) => handleItemChange(index, 'sgstRate', e.target.value)} className="border p-1 rounded text-sm" placeholder="SGST %" />
 //                       <input type="number" value={item.cgstRate} onChange={(e) => handleItemChange(index, 'cgstRate', e.target.value)} className="border p-1 rounded text-sm" placeholder="CGST %" />
@@ -250,9 +249,13 @@
 //         </div>
 //       </div>
 
-//       {/* ================= RIGHT: PREVIEW (A4) ================= */}
-//       <div className="w-full flex justify-center overflow-x-auto pb-10">
-//         <div ref={pdfRef} className="w-[794px] min-h-[1123px] bg-white p-8 border border-gray-300 text-xs text-black leading-tight relative shadow-2xl flex flex-col justify-between">
+//       {/* ================= RIGHT: PREVIEW (Responsive Wrapper) ================= */}
+//       {/* On mobile, this flex container will allow horizontal scrolling (overflow-x-auto) 
+//          so the user can see the 794px A4 paper without squashing it.
+//       */}
+//       <div className="w-full flex justify-center lg:justify-start overflow-x-auto pb-10 order-2 lg:order-none">
+//         {/* A4 PAPER: Fixed Width (794px) - Crucial for PDF generation. shrink-0 prevents it from getting crushed on mobile */}
+//         <div ref={pdfRef} className="min-w-[794px] w-[794px] min-h-[1123px] bg-white p-8 border border-gray-300 text-xs text-black leading-tight relative shadow-2xl flex flex-col justify-between shrink-0">
           
 //           <div> 
 //             {/* Header */}
@@ -263,7 +266,6 @@
 //                   <p>OFFICE NO 103, 84 LAL SINGH BUILDING, MAHIPALPUR, NEW DELHI – 110037</p>
 //                   <p className="mt-1"><b>GSTIN NO:</b> 07BDPPD2513J1ZN</p>
 //                   <p className="mt-1"><b>Email:</b> info@dwivedilogistics.in</p>
-
 //                </div>
 //             </div>
 
@@ -363,28 +365,28 @@
 //                </div>
 //             </div>
 
-//            {/* Amount In Words & Equivalent INR */}
-// <div className="mb-2">
-//   <p className="uppercase">
-//     <b>AMOUNT IN WORDS:</b> {amountInWords}
-//   </p>
+//             {/* Amount In Words & Equivalent INR */}
+//             <div className="mb-2">
+//               <p className="uppercase">
+//                 <b>AMOUNT IN WORDS:</b> {amountInWords}
+//               </p>
 
-//   {currency !== "INR" && (
-//     <>
-//       <p className="mt-1 font-bold text-gray-700">
-//         (Equivalent to INR: ₹{" "}
-//         {equivalentINR.toLocaleString("en-IN", {
-//           minimumFractionDigits: 2,
-//           maximumFractionDigits: 2,
-//         })})
-//       </p>
+//               {currency !== "INR" && (
+//                 <>
+//                   <p className="mt-1 font-bold text-gray-700">
+//                     (Equivalent to INR: ₹{" "}
+//                     {equivalentINR.toLocaleString("en-IN", {
+//                       minimumFractionDigits: 2,
+//                       maximumFractionDigits: 2,
+//                     })})
+//                   </p>
 
-//       <p className="text-right text-[10px] italic mb-2">
-//         Exchange Rate Applied: 1 {currency} = {exchangeRate} INR
-//       </p>
-//     </>
-//   )}
-// </div>
+//                   <p className="text-right text-[10px] italic mb-2">
+//                     Exchange Rate Applied: 1 {currency} = {exchangeRate} INR
+//                   </p>
+//                 </>
+//               )}
+//             </div>
 
 //             <hr className="border-t border-black my-2" />
 
@@ -426,10 +428,14 @@
 //   );
 // }
 
+
 import { useRef, useState } from "react";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
 import logo from "../assets/logo.jpg";
+
+// ⚠️ REPLACE THIS WITH YOUR GOOGLE APPS SCRIPT WEB APP URL
+const GOOGLE_SHEET_URL = "https://script.google.com/macros/s/AKfycbzVcrboKiKc3Pxo1TFKffrVPMjs3hLZMwrE5V-RNtMzovXRP4kjvRAkvzfVISJebqGHSg/exec"; 
 
 // --- 1. UTILITY: Number To Words ---
 function numberToWords(num, currency) {
@@ -475,15 +481,16 @@ const CURRENCIES = {
   SGD: { symbol: "S$", name: "SGD" },
 };
 
-export default function BillForm() {
+export default function BillForm({initialData}) {
   const pdfRef = useRef();
 
   // --- STATE ---
-  const [currency, setCurrency] = useState("INR");
-  const [exchangeRate, setExchangeRate] = useState(1);
+  const [currency, setCurrency] = useState(initialData?.currency || "INR");
+  const [exchangeRate, setExchangeRate] = useState(initialData?.exchangeRate || 1);
   const [isFetchingRate, setIsFetchingRate] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
 
-  const [data, setData] = useState({
+ const [data, setData] = useState(initialData || {
     receiverName: "",
     receiverAddress: "",
     receiverGstin: "",
@@ -555,6 +562,62 @@ export default function BillForm() {
   // Calculate Equivalent INR
   const equivalentINR = totals.grandTotal * exchangeRate;
 
+  // --- SAVE TO GOOGLE SHEET (YOUR CODE) ---
+  const handleSaveToSheet = async () => {
+    // ⚠️ REPLACE WITH YOUR NEW DEPLOYMENT URL
+    if(!GOOGLE_SHEET_URL.startsWith("https")) {
+      alert("Please enter your Google Web App URL in the code.");
+      return;
+    }
+
+    setIsSaving(true);
+
+    // Prepare the exact payload matching the Google Script
+    const payload = {
+      // 1. All Input Fields
+      receiverName: data.receiverName,
+      receiverAddress: data.receiverAddress,
+      receiverGstin: data.receiverGstin,
+      partyName: data.partyName,
+      billNo: data.billNo,
+      billDate: data.billDate,
+      sbNo: data.sbNo,
+      sbDate: data.sbDate,
+      mawb: data.mawb,
+      hawb: data.hawb,
+      pol: data.pol,
+      pod: data.pod,
+      pkgs: data.pkgs,
+      grossWeight: data.grossWeight,
+      volWeight: data.volWeight,
+      
+      // 2. Currency & Totals
+      currency: currency,
+      exchangeRate: exchangeRate,
+      grandTotalForeign: totals.grandTotal,
+      grandTotalINR: equivalentINR,
+      
+      // 3. Items Array
+      items: data.items 
+    };
+
+    try {
+      await fetch(GOOGLE_SHEET_URL, {
+        method: "POST",
+        mode: "no-cors", 
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      alert("✅ Saved! Data sent to Google Sheets.");
+    } catch (error) {
+      console.error("Error saving:", error);
+      alert("❌ Error saving to sheet.");
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   // --- DOWNLOAD PDF ---
   const downloadPDF = async () => {
     const element = pdfRef.current;
@@ -572,10 +635,10 @@ export default function BillForm() {
   };
 
   return (
-    // RESPONSIVE WRAPPER: Flex-col on mobile, Flex-row on Desktop (lg)
+    // RESPONSIVE WRAPPER
     <div className="flex flex-col lg:flex-row gap-5 p-2 lg:p-5 bg-gray-100 min-h-screen font-sans">
 
-      {/* ================= LEFT: INPUT FORM (Responsive Width) ================= */}
+      {/* ================= LEFT: INPUT FORM ================= */}
       <div className="w-full lg:w-[45%] bg-white p-4 lg:p-6 rounded-lg shadow-xl h-auto lg:h-[95vh] lg:overflow-y-auto lg:sticky lg:top-5 order-1 lg:order-none">
         <h3 className="text-xl lg:text-2xl font-bold mb-6 text-gray-800 border-b pb-2">Invoice Editor</h3>
 
@@ -624,7 +687,7 @@ export default function BillForm() {
             </div>
           </div>
 
-          {/* Logistics - Responsive Grid */}
+          {/* Logistics */}
           <div>
             <h4 className="font-semibold text-blue-600 mb-2">Logistics Info</h4>
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
@@ -671,18 +734,29 @@ export default function BillForm() {
             </div>
           </div>
 
-          <button onClick={downloadPDF} className="w-full bg-red-600 text-white py-3 rounded-lg font-bold shadow hover:bg-red-700">
-            DOWNLOAD PDF
-          </button>
+          {/* BUTTONS */}
+          <div className="flex gap-3 pt-4">
+             <button 
+                onClick={handleSaveToSheet} 
+                disabled={isSaving}
+                className={`w-1/2 py-3 rounded-lg font-bold shadow text-white transition ${isSaving ? 'bg-gray-400' : 'bg-blue-600 hover:bg-blue-700'}`}
+             >
+                {isSaving ? "Saving..." : "Save to Sheet"}
+             </button>
+
+             <button 
+                onClick={downloadPDF} 
+                className="w-1/2 bg-red-600 text-white py-3 rounded-lg font-bold shadow hover:bg-red-700"
+             >
+                Download PDF
+             </button>
+          </div>
         </div>
       </div>
 
-      {/* ================= RIGHT: PREVIEW (Responsive Wrapper) ================= */}
-      {/* On mobile, this flex container will allow horizontal scrolling (overflow-x-auto) 
-         so the user can see the 794px A4 paper without squashing it.
-      */}
+      {/* ================= RIGHT: PREVIEW ================= */}
       <div className="w-full flex justify-center lg:justify-start overflow-x-auto pb-10 order-2 lg:order-none">
-        {/* A4 PAPER: Fixed Width (794px) - Crucial for PDF generation. shrink-0 prevents it from getting crushed on mobile */}
+        {/* A4 PAPER - Fixed 794px width */}
         <div ref={pdfRef} className="min-w-[794px] w-[794px] min-h-[1123px] bg-white p-8 border border-gray-300 text-xs text-black leading-tight relative shadow-2xl flex flex-col justify-between shrink-0">
           
           <div> 
@@ -736,7 +810,7 @@ export default function BillForm() {
                 ))}
             </div>
 
-            {/* Table - DYNAMIC ROWS ONLY */}
+            {/* Table - Dynamic Rows */}
             <table className="w-full border-collapse border border-black mb-4">
               <thead>
                 <tr className="bg-gray-100">
@@ -798,7 +872,6 @@ export default function BillForm() {
               <p className="uppercase">
                 <b>AMOUNT IN WORDS:</b> {amountInWords}
               </p>
-
               {currency !== "INR" && (
                 <>
                   <p className="mt-1 font-bold text-gray-700">
@@ -808,7 +881,6 @@ export default function BillForm() {
                       maximumFractionDigits: 2,
                     })})
                   </p>
-
                   <p className="text-right text-[10px] italic mb-2">
                     Exchange Rate Applied: 1 {currency} = {exchangeRate} INR
                   </p>
@@ -818,6 +890,7 @@ export default function BillForm() {
 
             <hr className="border-t border-black my-2" />
 
+            {/* Footer Details */}
             <div className="mt-2 space-y-1">
               <p><b>BANK NAME:</b> ICICI BANK</p>
               <p><b>ACCOUNT NUMBER:</b> 040005000652</p>
@@ -836,6 +909,7 @@ export default function BillForm() {
             </div>
           </div>
 
+          {/* Signature & Thank You */}
           <div>
             <div className="flex justify-end mt-8 mr-4">
               <div className="text-center">
