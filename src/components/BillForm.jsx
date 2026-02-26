@@ -435,7 +435,7 @@ import jsPDF from "jspdf";
 import logo from "../assets/logo.jpg";
 
 // ⚠️ REPLACE THIS WITH YOUR GOOGLE APPS SCRIPT WEB APP URL
-const GOOGLE_SHEET_URL = "https://script.google.com/macros/s/AKfycbzVcrboKiKc3Pxo1TFKffrVPMjs3hLZMwrE5V-RNtMzovXRP4kjvRAkvzfVISJebqGHSg/exec"; 
+const GOOGLE_SHEET_URL = "https://script.google.com/macros/s/AKfycbz34Qkn_XuGBHqwgoExnVSqZBwjAequpuPFvtdDubZzmNEti5uhkDMZxhkTkMB9OdYjXQ/exec"; 
 
 // --- 1. UTILITY: Number To Words ---
 function numberToWords(num, currency) {
@@ -490,7 +490,7 @@ export default function BillForm({initialData}) {
   const [isFetchingRate, setIsFetchingRate] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
 
- const [data, setData] = useState(initialData || {
+  const [data, setData] = useState(initialData || {
     receiverName: "",
     receiverAddress: "",
     receiverGstin: "",
@@ -558,57 +558,30 @@ export default function BillForm({initialData}) {
 
   const amountInWords = numberToWords(totals.grandTotal, currency);
   const curSymbol = CURRENCIES[currency].symbol;
-
-  // Calculate Equivalent INR
   const equivalentINR = totals.grandTotal * exchangeRate;
 
-  // --- SAVE TO GOOGLE SHEET (YOUR CODE) ---
+  // --- SAVE TO GOOGLE SHEET ---
   const handleSaveToSheet = async () => {
-    // ⚠️ REPLACE WITH YOUR NEW DEPLOYMENT URL
     if(!GOOGLE_SHEET_URL.startsWith("https")) {
       alert("Please enter your Google Web App URL in the code.");
       return;
     }
 
     setIsSaving(true);
-
-    // Prepare the exact payload matching the Google Script
     const payload = {
-      // 1. All Input Fields
-      receiverName: data.receiverName,
-      receiverAddress: data.receiverAddress,
-      receiverGstin: data.receiverGstin,
-      partyName: data.partyName,
-      billNo: data.billNo,
-      billDate: data.billDate,
-      sbNo: data.sbNo,
-      sbDate: data.sbDate,
-      mawb: data.mawb,
-      hawb: data.hawb,
-      pol: data.pol,
-      pod: data.pod,
-      pkgs: data.pkgs,
-      grossWeight: data.grossWeight,
-      volWeight: data.volWeight,
-      
-      // 2. Currency & Totals
-      currency: currency,
-      exchangeRate: exchangeRate,
-      grandTotalForeign: totals.grandTotal,
-      grandTotalINR: equivalentINR,
-      
-      // 3. Items Array
+      receiverName: data.receiverName, receiverAddress: data.receiverAddress, receiverGstin: data.receiverGstin,
+      partyName: data.partyName, billNo: data.billNo, billDate: data.billDate, sbNo: data.sbNo, sbDate: data.sbDate,
+      mawb: data.mawb, hawb: data.hawb, pol: data.pol, pod: data.pod, pkgs: data.pkgs,
+      grossWeight: data.grossWeight, volWeight: data.volWeight,
+      currency: currency, exchangeRate: exchangeRate,
+      grandTotalForeign: totals.grandTotal, grandTotalINR: equivalentINR,
       items: data.items 
     };
 
     try {
       await fetch(GOOGLE_SHEET_URL, {
-        method: "POST",
-        mode: "no-cors", 
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
+        method: "POST", mode: "no-cors", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload),
       });
-
       alert("✅ Saved! Data sent to Google Sheets.");
     } catch (error) {
       console.error("Error saving:", error);
@@ -618,24 +591,48 @@ export default function BillForm({initialData}) {
     }
   };
 
-  // --- DOWNLOAD PDF ---
+ // --- DOWNLOAD PDF (BULLETPROOF VERSION) ---
   const downloadPDF = async () => {
     const element = pdfRef.current;
-    window.scrollTo(0, 0); 
-    await new Promise(r => setTimeout(r, 100));
-    const canvas = await html2canvas(element, { scale: 2, useCORS: true, scrollY: 0 });
-    const imgData = canvas.toDataURL("image/png");
-    const pdf = new jsPDF("p", "mm", "a4");
-    const pdfWidth = 210;
-    const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
-    pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
     
-    const fileName = data.billNo && data.billNo.trim() !== "" ? data.billNo : "invoice";
-    pdf.save(`${fileName}.pdf`);
+    // 1. Temporarily remove the overflow from the parent to prevent html2canvas from cropping the image
+    const parentWrapper = element.parentElement;
+    const originalOverflow = parentWrapper.style.overflow;
+    parentWrapper.style.overflow = "visible"; 
+
+    // 2. Scroll to top to ensure we capture from the very beginning
+    window.scrollTo(0, 0); 
+    await new Promise(r => setTimeout(r, 100)); // Wait for DOM to settle
+
+    try {
+      const canvas = await html2canvas(element, { 
+        scale: 2, 
+        useCORS: true, 
+        scrollY: 0,
+        scrollX: 0
+      });
+      
+      const imgData = canvas.toDataURL("image/png");
+      const pdf = new jsPDF("p", "mm", "a4");
+      const pdfWidth = 210;
+      const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+      
+      pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
+      
+      // ✅ FIXED: Safely convert to string to avoid .trim() error
+      const fileName = data.billNo && String(data.billNo).trim() !== "" ? data.billNo : "invoice";
+      pdf.save(`${fileName}.pdf`);
+      
+    } catch (error) {
+      console.error("Error generating PDF:", error);
+      alert("Failed to generate PDF. Check console.");
+    } finally {
+      // 3. Restore the original overflow so the page is scrollable again
+      parentWrapper.style.overflow = originalOverflow;
+    }
   };
 
   return (
-    // RESPONSIVE WRAPPER
     <div className="flex flex-col lg:flex-row gap-5 p-2 lg:p-5 bg-gray-100 min-h-screen font-sans">
 
       {/* ================= LEFT: INPUT FORM ================= */}
@@ -756,6 +753,7 @@ export default function BillForm({initialData}) {
 
       {/* ================= RIGHT: PREVIEW ================= */}
       <div className="w-full flex justify-center lg:justify-start overflow-x-auto pb-10 order-2 lg:order-none">
+        
         {/* A4 PAPER - Fixed 794px width */}
         <div ref={pdfRef} className="min-w-[794px] w-[794px] min-h-[1123px] bg-white p-8 border border-gray-300 text-xs text-black leading-tight relative shadow-2xl flex flex-col justify-between shrink-0">
           
@@ -810,12 +808,12 @@ export default function BillForm({initialData}) {
                 ))}
             </div>
 
-            {/* Table - Dynamic Rows */}
+            {/* Table - Dynamic Rows with whitespace-nowrap applied */}
             <table className="w-full border-collapse border border-black mb-4">
               <thead>
                 <tr className="bg-gray-100">
                   {["S.No", "Description", "HSN", "Taxable", "SGST%", "SGST", "CGST%", "CGST", "IGST%", "IGST", "Total GST", "Total"].map((h) => (
-                    <th key={h} className="border border-black p-1 text-center font-bold text-[10px]">{h}</th>
+                    <th key={h} className="border border-black p-1 text-center font-bold text-[10px] whitespace-nowrap">{h}</th>
                   ))}
                 </tr>
               </thead>
@@ -833,15 +831,16 @@ export default function BillForm({initialData}) {
                         <td className="border border-black p-1 text-center">{i + 1}</td>
                         <td className="border border-black p-1 text-center font-bold">{item.description}</td>
                         <td className="border border-black p-1 text-center">{item.hsn}</td>
-                        <td className="border border-black p-1 text-center">{curSymbol} {taxable.toFixed(2)}</td>
-                        <td className="border border-black p-1 text-center">{item.sgstRate}%</td>
-                        <td className="border border-black p-1 text-center">{curSymbol} {sgst.toFixed(2)}</td>
-                        <td className="border border-black p-1 text-center">{item.cgstRate}%</td>
-                        <td className="border border-black p-1 text-center">{curSymbol} {cgst.toFixed(2)}</td>
-                        <td className="border border-black p-1 text-center">{item.igstRate}%</td>
-                        <td className="border border-black p-1 text-center">{curSymbol} {igst.toFixed(2)}</td>
-                        <td className="border border-black p-1 text-center">{curSymbol} {totalGst.toFixed(2)}</td>
-                        <td className="border border-black p-1 text-center font-bold">{curSymbol} {totalRow.toFixed(2)}</td>
+                        {/* Adding whitespace-nowrap prevents the symbol from breaking to a new line */}
+                        <td className="border border-black p-1 text-center whitespace-nowrap">{curSymbol} {taxable.toFixed(2)}</td>
+                        <td className="border border-black p-1 text-center whitespace-nowrap">{item.sgstRate}%</td>
+                        <td className="border border-black p-1 text-center whitespace-nowrap">{curSymbol} {sgst.toFixed(2)}</td>
+                        <td className="border border-black p-1 text-center whitespace-nowrap">{item.cgstRate}%</td>
+                        <td className="border border-black p-1 text-center whitespace-nowrap">{curSymbol} {cgst.toFixed(2)}</td>
+                        <td className="border border-black p-1 text-center whitespace-nowrap">{item.igstRate}%</td>
+                        <td className="border border-black p-1 text-center whitespace-nowrap">{curSymbol} {igst.toFixed(2)}</td>
+                        <td className="border border-black p-1 text-center whitespace-nowrap">{curSymbol} {totalGst.toFixed(2)}</td>
+                        <td className="border border-black p-1 text-center font-bold whitespace-nowrap">{curSymbol} {totalRow.toFixed(2)}</td>
                       </tr>
                     )
                 })}
@@ -849,8 +848,8 @@ export default function BillForm({initialData}) {
               <tfoot>
                 <tr>
                   <td colSpan="10" className="border border-black p-1 font-bold text-right bg-gray-50">TOTAL</td>
-                  <td className="border border-black p-1 text-center font-bold">{curSymbol} {totals.gstTotal.toFixed(2)}</td>
-                  <td className="border border-black p-1 text-center font-bold">{curSymbol} {totals.grandTotal.toFixed(2)}</td>
+                  <td className="border border-black p-1 text-center font-bold whitespace-nowrap">{curSymbol} {totals.gstTotal.toFixed(2)}</td>
+                  <td className="border border-black p-1 text-center font-bold whitespace-nowrap">{curSymbol} {totals.grandTotal.toFixed(2)}</td>
                 </tr>
               </tfoot>
             </table>
@@ -861,7 +860,7 @@ export default function BillForm({initialData}) {
                   <p className="bg-red-600 text-white p-2 m-0 font-bold print:bg-red-600 print:text-white flex items-center">
                     PLEASE PAY THIS AMOUNT:
                   </p>
-                  <h3 className="p-2 m-0 font-bold text-lg">
+                  <h3 className="p-2 m-0 font-bold text-lg whitespace-nowrap">
                     {curSymbol} {totals.grandTotal.toFixed(2)}
                   </h3>
                </div>

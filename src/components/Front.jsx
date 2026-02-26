@@ -1,17 +1,44 @@
-import { useState, useEffect, useRef } from "react";
-import { FileText, Plus, Edit, Calendar, User, ArrowLeft, RefreshCw, Loader2 } from "lucide-react";
-import BillForm from "./BillForm"; // Assuming BillForm is in the same folder
+import { useState, useEffect } from "react";
+import { FileText, Plus, Edit, Calendar, User, ArrowLeft, RefreshCw, Loader2, Lock } from "lucide-react";
+import BillForm from "./BillForm"; 
 
 // ⚠️ YOUR GOOGLE SHEET URL
 const GOOGLE_SHEET_URL = "https://script.google.com/macros/s/AKfycbzVcrboKiKc3Pxo1TFKffrVPMjs3hLZMwrE5V-RNtMzovXRP4kjvRAkvzfVISJebqGHSg/exec"; 
 
 export default function Front() {
+  // --- AUTHENTICATION STATE ---
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [passcode, setPasscode] = useState("");
+  const [loginError, setLoginError] = useState("");
+
+  // --- APP STATE ---
   const [view, setView] = useState("history"); // 'history' or 'editor'
   const [history, setHistory] = useState([]);
   const [loading, setLoading] = useState(false);
   const [editorData, setEditorData] = useState(null);
 
-  // --- 1. FETCH HISTORY FROM GOOGLE SHEETS ---
+  // --- 1. CHECK LOGIN STATUS ON LOAD ---
+  useEffect(() => {
+    const loggedIn = localStorage.getItem("dwivedi_auth");
+    if (loggedIn === "true") {
+      setIsAuthenticated(true);
+    }
+  }, []);
+
+  // --- 2. HANDLE LOGIN SUBMIT ---
+  const handleLogin = (e) => {
+    e.preventDefault();
+    if (passcode === "DL100793") {
+      localStorage.setItem("dwivedi_auth", "true");
+      setIsAuthenticated(true);
+      setLoginError("");
+    } else {
+      setLoginError("Invalid passcode. Please try again.");
+      setPasscode("");
+    }
+  };
+
+  // --- 3. FETCH HISTORY FROM GOOGLE SHEETS ---
   const fetchHistory = async () => {
     setLoading(true);
     try {
@@ -27,13 +54,15 @@ export default function Front() {
     }
   };
 
+  // Fetch history only if authenticated and on history view
   useEffect(() => {
-    fetchHistory();
-  }, []);
+    if (isAuthenticated && view === "history") {
+      fetchHistory();
+    }
+  }, [isAuthenticated, view]);
 
-  // --- 2. HANDLE NEW INVOICE ---
+  // --- 4. HANDLE NEW INVOICE ---
   const handleNewInvoice = () => {
-    // Empty State (As requested)
     setEditorData({
       receiverName: "",
       receiverAddress: "",
@@ -51,30 +80,27 @@ export default function Front() {
     setView("editor");
   };
 
-  // --- 3. HANDLE EDIT INVOICE ---
+  // --- 5. HANDLE EDIT INVOICE ---
   const handleEdit = (row) => {
     // Map Google Sheet Row (Array) back to Object
-    // Indexes match the order in your Google Apps Script 'rowData'
     const invoiceData = {
-      billNo: row[1],
-      billDate: row[2],
-      receiverName: row[3],
-      receiverAddress: row[4],
-      receiverGstin: row[5],
-      partyName: row[6],
-      sbNo: row[7],
-      sbDate: row[8],
-      mawb: row[9],
-      hawb: row[10],
-      pol: row[11],
-      pod: row[12],
-      pkgs: row[13],
-      grossWeight: row[14],
-      volWeight: row[15],
-      // Currency Info
+      billNo: row[1] || "",
+      billDate: row[2] || "",
+      receiverName: row[3] || "",
+      receiverAddress: row[4] || "",
+      receiverGstin: row[5] || "",
+      partyName: row[6] || "",
+      sbNo: row[7] || "",
+      sbDate: row[8] || "",
+      mawb: row[9] || "",
+      hawb: row[10] || "",
+      pol: row[11] || "",
+      pod: row[12] || "",
+      pkgs: row[13] || "",
+      grossWeight: row[14] || "",
+      volWeight: row[15] || "",
       currency: row[16] || "INR", 
       exchangeRate: row[17] || 1,
-      // Items need parsing from JSON string
       items: row[20] ? JSON.parse(row[20]) : []
     };
 
@@ -82,8 +108,53 @@ export default function Front() {
     setView("editor");
   };
 
+  // ==========================================
+  // VIEW 1: LOGIN SCREEN
+  // ==========================================
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4 font-sans">
+        <div className="bg-white p-8 rounded-2xl shadow-xl max-w-md w-full border border-gray-200">
+          <div className="flex flex-col items-center mb-6">
+            <div className="bg-red-100 p-4 rounded-full text-red-600 mb-3">
+              <Lock size={32} />
+            </div>
+            <h2 className="text-2xl font-bold text-gray-800">Dwivedi Logistics</h2>
+            <p className="text-sm text-gray-500 mt-1">Authorized Personnel Only</p>
+          </div>
+
+          <form onSubmit={handleLogin} className="space-y-4">
+            <div>
+              <label className="block text-sm font-bold text-gray-700 mb-1">Enter Passcode</label>
+              <input 
+                type="password" 
+                value={passcode}
+                onChange={(e) => setPasscode(e.target.value)}
+                className="w-full border-2 border-gray-300 p-3 rounded-lg focus:outline-none focus:border-red-500 transition tracking-widest text-center text-lg font-bold"
+                placeholder="••••••••"
+                autoFocus
+              />
+            </div>
+            
+            {loginError && <p className="text-red-500 text-xs text-center font-bold">{loginError}</p>}
+            
+            <button 
+              type="submit" 
+              className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-lg transition shadow-md active:scale-95"
+            >
+              Access System
+            </button>
+          </form>
+        </div>
+      </div>
+    );
+  }
+
+  // ==========================================
+  // VIEW 2: MAIN DASHBOARD (History or Editor)
+  // ==========================================
   return (
-    <div className="min-h-screen bg-gray-50 font-sans p-6">
+    <div className="min-h-screen bg-gray-50 font-sans p-4 md:p-6">
       
       {/* --- HEADER --- */}
       <div className="max-w-7xl mx-auto mb-8 flex flex-col md:flex-row justify-between items-center gap-4">
@@ -177,7 +248,7 @@ export default function Front() {
                 <div className="border-t pt-3 flex justify-between items-center">
                    <span className="text-xs font-bold text-gray-400">TOTAL AMOUNT</span>
                    <span className="text-lg font-bold text-green-600">
-                      {row[16] === 'USD' ? '$' : '₹'} 
+                      {row[16] === 'USD' ? '$' : row[16] === 'HKD' ? 'HK$' : row[16] === 'SGD' ? 'S$' : '₹'} 
                       {Number(row[19] || 0).toLocaleString()} 
                    </span>
                 </div>
@@ -189,7 +260,6 @@ export default function Front() {
         </div>
       ) : (
         /* --- EDITOR VIEW --- */
-        /* Passing initialData prop to BillForm */
         <BillForm initialData={editorData} />
       )}
     </div>
