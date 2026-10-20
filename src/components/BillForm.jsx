@@ -933,11 +933,11 @@
 import { useRef, useState } from "react";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
-import logo from "../assets/logo.png";
+import logo from "../assets/logo2.jpg";
 
 // ⚠️ REPLACE THIS WITH YOUR GOOGLE APPS SCRIPT WEB APP URL
 const GOOGLE_SHEET_URL = "https://script.google.com/macros/s/AKfycbz34Qkn_XuGBHqwgoExnVSqZBwjAequpuPFvtdDubZzmNEti5uhkDMZxhkTkMB9OdYjXQ/exec"; 
-
+const comp_name = 'DWIVEDI LOGISTICS';
 // --- 1. UTILITY: Number To Words ---
 function numberToWords(num, currency) {
   if (!num) return "";
@@ -1275,15 +1275,15 @@ export default function BillForm({initialData}) {
             <div className="relative mb-1 pb-3 border-b-2 border-[#336571]">
                <img src={logo} alt="logo" className="w-[100px] h-[60px] absolute top-0 left-0 object-contain" />
                <div className="text-center px-24">
-                  <b className="text-[30px] block mb-[5px] tracking-wide">ARISE MARITIME</b>
+                  <b className="text-[30px] block mb-[5px] tracking-wide">{comp_name}</b>
                   <p>OFFICE NO 103, 84 LAL SINGH BUILDING, MAHIPALPUR, NEW DELHI – 110037</p>
                   <p className="mt-1"><b>GSTIN NO:</b> 07BDPPD2513J1ZN</p>
                   <p className="mt-1"><b>Email:</b> info@dwivedilogistics.in</p>
                </div>
             </div>
-
+              {/* bg-[#336571] */}
             <div className="mt-1 mb-2">
-                <h2 className="text-center font-bold text-lg bg-[#336571] text-white py-1 print:bg-[#336571] print:text-white">
+                <h2 className="text-center font-bold text-lg bg-red-600 text-white py-1 print:bg-red-600 print:text-white">
                   TAX INVOICE
                 </h2>
             </div>
@@ -1376,7 +1376,7 @@ export default function BillForm({initialData}) {
             {/* Payment Box */}
             <div className="flex justify-end mb-3">
                <div className="flex border border-gray-700 rounded-sm overflow-hidden w-fit">
-                  <p className="bg-[#336571] text-white px-3 py-2 m-0 font-bold print:bg-[#336571] print:text-white flex items-center">
+                  <p className="bg-red-600 text-white px-3 py-2 m-0 font-bold print:bg-red-600 print:text-white flex items-center">
                     PLEASE PAY THIS AMOUNT:
                   </p>
                   <h3 className="px-3 py-2 m-0 font-bold text-lg whitespace-nowrap">
@@ -1431,13 +1431,13 @@ export default function BillForm({initialData}) {
           <div>
             <div className="flex justify-end mt-2 mr-4">
               <div className="text-center">
-                <p className="font-bold">ARISE MARITIME</p>
+                <p className="font-bold">{comp_name}</p>
                 <div className="h-10"></div> 
                 <p className="text-[10px] text-gray-500">Authorized Signatory</p>
               </div>
             </div>
             <div className="mt-3 mb-0">
-              <div className="bg-[#336571] text-white text-center py-1 font-bold print:bg-[#336571] print:text-white">
+              <div className="bg-red-600 text-white text-center py-1 font-bold print:bg-red-600 print:text-white">
                 THANK YOU
               </div>
             </div>

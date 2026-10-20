@@ -1,6 +1,7 @@
 import './Bill.css';
 
 export default function Bill() {
+  const comp_name = 'DWIVEDI LOGISITICS';
   return (
     <div className="page">
       <div className="invoice">
@@ -119,12 +120,12 @@ export default function Bill() {
         </div>
 
         <div className="sign">
-          <p>FOR ARISE MARITIME</p>
+          <p>FOR {comp_name}</p>
           <p>Authorized Signatory</p>
         </div>
 
         <div className="footer">
-          <b>ARISE MARITIME</b>
+          <b>{comp_name}</b>
           <p>
             OFFICE NO 103, 84 LAL SINGH BUILDING,  
             MAHIPALPUR, NEW DELHI – 110037
