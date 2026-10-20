@@ -119,12 +119,12 @@ export default function Bill() {
         </div>
 
         <div className="sign">
-          <p>FOR DWIVEDI LOGISTICS</p>
+          <p>FOR ARISE MARITIME</p>
           <p>Authorized Signatory</p>
         </div>
 
         <div className="footer">
-          <b>DWIVEDI LOGISTICS</b>
+          <b>ARISE MARITIME</b>
           <p>
             OFFICE NO 103, 84 LAL SINGH BUILDING,  
             MAHIPALPUR, NEW DELHI – 110037
